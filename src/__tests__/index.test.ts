@@ -44,7 +44,7 @@ describe("css", () => {
   it("should support template literals", () => {
     const color = "blue";
     const fontSize = "14px";
-    const className = css`
+    css`
       color: ${color};
       font-size: ${fontSize};
     `;
@@ -56,7 +56,7 @@ describe("css", () => {
   it("should handle nested interpolations", () => {
     const margin = "20px";
     const padding = { top: "10px", bottom: "15px" };
-    const className = css`
+    css`
       margin: ${margin};
       padding-top: ${padding.top};
       padding-bottom: ${padding.bottom};
@@ -65,5 +65,43 @@ describe("css", () => {
     expect(mockStyleElement.textContent).toContain("margin: 20px");
     expect(mockStyleElement.textContent).toContain("padding-top: 10px");
     expect(mockStyleElement.textContent).toContain("padding-bottom: 15px");
+  });
+
+  it("should add vendor prefixes to supported properties", () => {
+    css`
+      transform: scale(1.2);
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+    `;
+
+    const style = mockStyleElement.textContent || "";
+
+    // 检查是否添加了浏览器前缀
+    expect(style).toContain("-webkit-transform: scale(1.2)");
+    expect(style).toContain("-moz-transform: scale(1.2)");
+    expect(style).toContain("-ms-transform: scale(1.2)");
+    expect(style).toContain("transform: scale(1.2)");
+
+    expect(style).toContain("-webkit-user-select: none");
+    expect(style).toContain("-moz-user-select: none");
+    expect(style).toContain("-ms-user-select: none");
+    expect(style).toContain("user-select: none");
+
+    expect(style).toContain("-webkit-flex-direction: column");
+    expect(style).toContain("flex-direction: column");
+  });
+
+  it("should not add prefixes to standard properties", () => {
+    css`
+      color: blue;
+      margin: 10px;
+    `;
+
+    const style = mockStyleElement.textContent || "";
+
+    // 检查是否没有添加不必要的前缀
+    expect(style.match(/color: blue/g)?.length).toBe(1);
+    expect(style.match(/margin: 10px/g)?.length).toBe(1);
   });
 });

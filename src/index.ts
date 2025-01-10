@@ -1,3 +1,5 @@
+import { addVendorPrefixes } from "./utils/prefixer";
+
 // 用于生成唯一的类名
 let counter = 0;
 function generateClassName(): string {
@@ -48,6 +50,9 @@ export function css(
     .trim()
     .replace(/\n\s+/g, " ")
     .replace(/\s{2,}/g, " ");
+
+  // 在注入样式之前添加浏览器前缀
+  cssText = addVendorPrefixes(cssText);
 
   // 生成唯一类名
   const className = generateClassName();
