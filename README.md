@@ -18,6 +18,3 @@ const className = css`
   color: blue;
 `;
 ```
-
-
-
