@@ -1,6 +1,6 @@
 import { css } from "../src/index";
 
-const buttonClassName = css`
+const button1ClassName = css`
   background-color: #4caf50;
   border: none;
   color: white;
@@ -18,5 +18,32 @@ const buttonClassName = css`
   }
 `;
 
-// 找到button元素并添加生成的类名
-document.querySelector("button")?.classList.add(buttonClassName);
+// support tag template literal
+const bgColor = "#2196f3";
+const color = "white";
+const padding = 15;
+const fontSize = 16;
+const margin = 4;
+const borderRadius = 4;
+const hoverBgColor = "#1976d2";
+
+const button2ClassName = css`
+  background-color: ${bgColor};
+  border: none;
+  color: ${color};
+  padding: ${padding}px ${padding * 2}px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: ${fontSize}px;
+  margin: ${margin}px ${margin / 2}px;
+  cursor: pointer;
+  border-radius: ${borderRadius}px;
+
+  &:hover {
+    background-color: ${hoverBgColor};
+  }
+`;
+
+document.querySelector(".button1")?.classList.add(button1ClassName);
+document.querySelector(".button2")?.classList.add(button2ClassName);

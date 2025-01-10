@@ -29,7 +29,25 @@ export function css(
   ...interpolations: any[]
 ): string {
   // 处理样式内容
-  const cssText = typeof styles === "string" ? styles : styles.raw.join("");
+  let cssText = "";
+
+  if (typeof styles === "string") {
+    cssText = styles;
+  } else {
+    // 处理模板字面量
+    cssText = styles.reduce((result, str, i) => {
+      // 处理插值，确保转换为字符串
+      const interpolation =
+        i < interpolations.length ? String(interpolations[i]) : "";
+      return result + str + interpolation;
+    }, "");
+  }
+
+  // 清理多余的空白字符
+  cssText = cssText
+    .trim()
+    .replace(/\n\s+/g, " ")
+    .replace(/\s{2,}/g, " ");
 
   // 生成唯一类名
   const className = generateClassName();
