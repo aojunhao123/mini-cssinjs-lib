@@ -62,9 +62,52 @@ function prefixDeclaration(property: string, value: string): string {
   );
 }
 
-// 解析CSS文本并添加前缀
+// 新增：解析单个CSS规则块
+function parseRuleBlock(css: string): {
+  selector: string;
+  declarations: string;
+} {
+  const [selector, ...rest] = css.split("{");
+  const declarations = rest.join("{").replace("}", "").trim();
+  return {
+    selector: selector.trim(),
+    declarations: declarations.trim(),
+  };
+}
+
+// 新增：处理嵌套的CSS规则
+function processNestedRules(cssText: string): string {
+  // 移除所有换行符，便于处理
+  const normalizedCss = cssText.replace(/\n/g, " ").trim();
+
+  // 如果包含嵌套规则
+  if (normalizedCss.includes("{") && normalizedCss.includes("}")) {
+    const rules = normalizedCss.split("}").filter(Boolean);
+
+    return rules
+      .map((rule) => {
+        const { selector, declarations } = parseRuleBlock(rule);
+        if (!declarations) return "";
+
+        const prefixedDeclarations = addVendorPrefixes(declarations);
+        return `${selector} {\n  ${prefixedDeclarations}\n}`;
+      })
+      .filter(Boolean)
+      .join("\n\n");
+  }
+
+  // 如果是单个声明，直接处理
+  return addVendorPrefixes(normalizedCss);
+}
+
+// 修改：更新主函数以处理嵌套规则
 export function addVendorPrefixes(cssText: string): string {
-  // 将CSS文本分割成单独的声明
+  // 如果包含嵌套规则，使用新的处理方法
+  if (cssText.includes("{")) {
+    return processNestedRules(cssText);
+  }
+
+  // 原有的单行声明处理逻辑
   const declarations = cssText.split(";").filter(Boolean);
 
   return declarations

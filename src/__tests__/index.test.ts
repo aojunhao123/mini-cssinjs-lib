@@ -1,4 +1,5 @@
 import { css } from "../index";
+import { addVendorPrefixes } from "../utils/prefixer";
 
 describe("css", () => {
   let mockStyleElement: HTMLStyleElement;
@@ -103,5 +104,31 @@ describe("css", () => {
     // 检查是否没有添加不必要的前缀
     expect(style.match(/color: blue/g)?.length).toBe(1);
     expect(style.match(/margin: 10px/g)?.length).toBe(1);
+  });
+
+  it("should handle pseudo-classes correctly", () => {
+    const input = `
+      background-color: #4caf50;
+      &:hover {
+        background-color: #45a049;
+        transform: scale(1.1);
+      }
+    `;
+
+    const expected = `background-color: #4caf50;
+&:hover {
+  background-color: #45a049;
+  -webkit-transform: scale(1.1);
+  -moz-transform: scale(1.1);
+  -ms-transform: scale(1.1);
+  -o-transform: scale(1.1);
+  transform: scale(1.1);
+}`;
+
+    const normalizeString = (str: string) => str.replace(/\s+/g, " ").trim();
+
+    expect(normalizeString(addVendorPrefixes(input))).toBe(
+      normalizeString(expected)
+    );
   });
 });
