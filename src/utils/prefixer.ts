@@ -82,18 +82,45 @@ function processNestedRules(cssText: string): string {
 
   // 如果包含嵌套规则
   if (normalizedCss.includes("{") && normalizedCss.includes("}")) {
-    const rules = normalizedCss.split("}").filter(Boolean);
-
-    return rules
-      .map((rule) => {
-        const { selector, declarations } = parseRuleBlock(rule);
-        if (!declarations) return "";
-
-        const prefixedDeclarations = addVendorPrefixes(declarations);
-        return `${selector} {\n  ${prefixedDeclarations}\n}`;
-      })
+    // 先提取所有非嵌套的声明
+    const outerDeclarations = normalizedCss
+      .replace(/&[^{]+\{[^}]+\}/g, "") // 移除所有嵌套规则
+      .split(";")
+      .map((decl) => decl.trim())
       .filter(Boolean)
-      .join("\n\n");
+      .filter((decl) => !decl.includes("{") && !decl.includes("}"))
+      .join(";");
+
+    // 处理嵌套规则
+    const nestedRules = normalizedCss.match(/&[^{]+\{[^}]+\}/g) || [];
+
+    const processedRules = nestedRules
+      .map((rule) => {
+        const [selector, declarations] = rule.split("{").map((s) => s.trim());
+        const cleanDeclarations = declarations.replace("}", "").trim();
+        if (!cleanDeclarations) return "";
+
+        // 处理嵌套规则内的声明
+        const processedDeclarations = cleanDeclarations
+          .split(";")
+          .map((decl) => decl.trim())
+          .filter(Boolean)
+          .map((decl) => {
+            const [prop, ...valueParts] = decl.split(":");
+            return prefixDeclaration(prop.trim(), valueParts.join(":").trim());
+          })
+          .join("\n  ");
+
+        return `${selector} {\n  ${processedDeclarations}\n}`;
+      })
+      .filter(Boolean);
+
+    // 合并外层声明和嵌套规则
+    const parts = [];
+    if (outerDeclarations) parts.push(outerDeclarations);
+    if (processedRules.length) parts.push(...processedRules);
+
+    return parts.join("; ");
   }
 
   // 如果是单个声明，直接处理

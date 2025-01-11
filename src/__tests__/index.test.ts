@@ -131,4 +131,44 @@ describe("css", () => {
       normalizeString(expected)
     );
   });
+
+  it("should handle empty declarations in nested rules correctly", () => {
+    const input = `
+      background-color: #4caf50;
+      &:hover { };
+      &:active {
+        transform: scale(0.98);
+      }
+    `;
+
+    const result = addVendorPrefixes(input);
+
+    // 验证结果中包含有效的声明
+    expect(result).toContain("background-color: #4caf50");
+    expect(result).toContain("-webkit-transform: scale(0.98)");
+    expect(result).toContain("transform: scale(0.98)");
+
+    // 验证空声明被正确处理
+    expect(result).not.toContain("&:hover {");
+  });
+
+  it("should handle malformed nested rules gracefully", () => {
+    const input = `
+      color: red;
+      &:hover {
+        color: blue;
+      }
+      &:active {
+        transform: scale(0.98);
+      }
+    `;
+
+    const result = addVendorPrefixes(input);
+
+    // 验证基本样式仍然被正确处理
+    expect(result).toContain("color: red");
+    expect(result).toContain("color: blue");
+    expect(result).toContain("-webkit-transform: scale(0.98)");
+    expect(result).toContain("transform: scale(0.98)");
+  });
 });
