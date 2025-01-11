@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "es2018",
     "module": "commonjs",
     "lib": ["es2018", "dom"],
@@ -8,12 +9,11 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["src"],
-  "baseUrl": ".",
-  "paths": {
-    "@/*": ["src/*"]
-  },
   "exclude": ["node_modules", "**/__tests__/*"]
 }
