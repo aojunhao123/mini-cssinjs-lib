@@ -23,10 +23,6 @@ function injectStyle(className: string, cssText: string): void {
   }
 }
 
-export interface CSSOptions {
-  isSSR?: boolean;
-}
-
 export function css(
   styles: string | TemplateStringsArray,
   ...interpolations: any[]
